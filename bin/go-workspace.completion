@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+BASE_PATH="$(cd $(dirname ${BASH_SOURCE[0]}) >/dev/null; pwd)"
+WS_PATH="$(dirname ${BASE_PATH})"
+
+alias ws=". ${BASE_PATH}/go-workspace"
+
+wscreate(){
+  if [ "x$1" == "x" ]; then
+    echo "Usage: wscreate <workspace>"
+    echo ""
+    exit 1
+  fi
+
+  mkdir -p "${WS_PATH}/$1/"{src,pkg,bin}
+  echo "Workspace $1 created."
+  echo "Please run 'ws $1' to use it..."
+  echo ""
+}
+
+
+_go_workspace()
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="$(find ${HOME}/go-workspaces -maxdepth 1 -mindepth 1 -type d -printf '%f\n')"
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    return 0
+}
+
+complete -F _go_workspace go-workspace
+complete -F _go_workspace ws
