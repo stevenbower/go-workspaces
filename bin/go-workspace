@@ -1,10 +1,23 @@
 #!/usr/bin/env bash
 
 BASE_PATH="$(cd $(dirname ${BASH_SOURCE[0]}) >/dev/null; pwd)"
-WS_PATH="$(dirname ${BASE_PATH})"
+WS_PATH=${GO_WS_PATH:-"$(dirname ${BASE_PATH})"}
+
+if [ "x$1" == "x" ]; then
+  echo "Error: No workspace provided"
+  return 1
+fi
 
 export GOPATH=${WS_PATH}/$1
+
+if [ ! -d "${GOPATH}" ]; then
+  echo "Error: Workspace $1 does not exist"
+  return 1
+fi
+
 export PATH=${GOPATH}/bin:${PATH}
+
+mkdir -p "${GOPATH}/"{src,pkg,bin}
 
 if [ -f $GOPATH/.workspace ]; then
   SRCPATH=$GOPATH/src/$(jq -r .basedir $GOPATH/.workspace)
